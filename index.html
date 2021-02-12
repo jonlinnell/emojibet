@@ -6,11 +6,14 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+
     <script type='text/javascript'>
       const alpha = 'abcdefghijklmnopqrstuvwxyz';
 
       const white = 'white';
       const yellow = 'yellow';
+
+      const alternating = 'alternating';
 
       const sets = alpha.split('').reduce((acc, char) => ({
         [white]: { ...acc[white], [char]: `:alphabet-${white}-${char}:` },
@@ -26,10 +29,16 @@
       const textToEmojibetWhite = textToEmojibet(white);
       const textToEmojibetYellow = textToEmojibet(yellow);
 
-      const textToEmojibetAlternating = string => string.toLowerCase().split('').reduce((acc, char, idx, arr) => ({
+      const textToEmojibetAlternating = string => string.toLowerCase().split('').reduce((acc, char) => ({
         nextSet: punctuation(char) ? acc.nextSet : acc.nextSet === white ? yellow : white,
         string: `${acc.string}${resolveChar(acc.nextSet)(char)}`
       }), { nextSet: white, string: '' }).string;
+
+      const methods = {
+        white: textToEmojibetWhite,
+        yellow: textToEmojibetYellow,
+        alternating: textToEmojibetAlternating,
+      }
     </script>
   </head>
   <body class="container">
@@ -37,6 +46,13 @@
     <form class=>
       <label for="input">Put your words in here</label>
       <input id="input"></input>
+
+      <label for="method">Method</label>
+      <select id='select-method'>
+        <option value="alternating">✨ Alternating ✨</option>
+        <option value="yellow">Yellow</option>
+        <option value="white">White</option>
+      </select>
 
       <label for="output">Paste this in your Slack!</label>
       <input id="output"></input>
@@ -49,11 +65,15 @@
       const input = document.getElementById('input');
       const output = document.getElementById('output');
 
-      input.addEventListener('input', (e) => {
-        e.preventDefault();
+      const selectMethod = document.getElementById('select-method');
 
-        output.value = textToEmojibetAlternating(e.target.value);
-      });
+      const handleConvert = () => {
+        const selected = selectMethod.value;
+
+        output.value = methods[selected](input.value);
+      }
+
+      input.addEventListener('input', handleConvert);
 
       const buttonCopy = document.getElementById('copy');
 
@@ -71,6 +91,8 @@
         input.value = '';
         output.value = '';
       }
+
+      selectMethod.addEventListener('change', handleConvert);
 
       const footer = document.getElementsByTagName('footer')[0];
 
