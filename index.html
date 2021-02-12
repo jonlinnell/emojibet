@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Emojibet</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+    <script type='text/javascript'>
+      const alpha = 'abcdefghijklmnopqrstuvwxyz';
+
+      const white = 'white';
+      const yellow = 'yellow';
+
+      const sets = alpha.split('').reduce((acc, char) => ({
+        [white]: { ...acc[white], [char]: `:alphabet-${white}-${char}:` },
+        [yellow]: { ...acc[yellow], [char]: `:alphabet-${yellow}-${char}:` }
+      }), { [white]: {}, [yellow]: {} });
+
+      const punctuation = (char) => /^[.,' ]$/.test(char) && char;
+
+      const resolveChar = colour => char => punctuation(char) || sets[colour][char] || '';
+
+      const textToEmojibet = set => string => string.toLowerCase().split('').map(resolveChar(set)).join('');
+
+      const textToEmojibetWhite = textToEmojibet(white);
+      const textToEmojibetYellow = textToEmojibet(yellow);
+
+      const textToEmojibetAlternating = string => string.toLowerCase().split('').reduce((acc, char, idx, arr) => ({
+        nextSet: punctuation(char) ? acc.nextSet : acc.nextSet === white ? yellow : white,
+        string: `${acc.string}${resolveChar(acc.nextSet)(char)}`
+      }), { nextSet: white, string: '' }).string;
+    </script>
+  </head>
+  <body class="container">
+    <img src="emojibet.png" alt="emojibet" style="pointer-events: none; user-select: none;" />
+    <form class=>
+      <label for="input">Put your words in here</label>
+      <input id="input"></input>
+
+      <label for="output">Paste this in your Slack!</label>
+      <input id="output"></input>
+
+      <button id="copy">Copy!</button>
+    </form>
+    <footer></footer>
+    <script type="text/javascript">
+      const input = document.getElementById('input');
+      const output = document.getElementById('output');
+
+      input.addEventListener('input', (e) => {
+        e.preventDefault();
+
+        output.value = textToEmojibetAlternating(e.target.value);
+      });
+
+      const buttonCopy = document.getElementById('copy');
+
+      buttonCopy.onclick = (e) => {
+        e.preventDefault();
+        output.select();
+        document.execCommand('copy');
+      }
+
+      const footer = document.getElementsByTagName('footer')[0];
+      
+      footer.innerHTML = `&copy; ${new Date().getFullYear()} Jon Linnell. A lunch break well wasted.`
+    </script>
+  </body>
+</html>
