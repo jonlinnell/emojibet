@@ -41,7 +41,8 @@
       <label for="output">Paste this in your Slack!</label>
       <input id="output"></input>
 
-      <button id="copy">Copy!</button>
+      <button id="copy" type="submit">Copy!</button>
+      <button id="reset" type="reset" class="button-clear">Reset</button>
     </form>
     <footer></footer>
     <script type="text/javascript">
@@ -62,8 +63,17 @@
         document.execCommand('copy');
       }
 
+      const buttonReset = document.getElementById('reset');
+
+      buttonReset.onclick = (e) => {
+        e.preventDefault();
+
+        input.value = '';
+        output.value = '';
+      }
+
       const footer = document.getElementsByTagName('footer')[0];
-      
+
       footer.innerHTML = `&copy; ${new Date().getFullYear()} Jon Linnell. A lunch break well wasted.`
     </script>
   </body>
